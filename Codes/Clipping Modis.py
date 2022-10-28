@@ -3,12 +3,13 @@ import glob
 import numpy as np
 import xarray as xr
 from pyhdf.SD import SD, SDC
-
+from datetime import datetime,date,timedelta
 import rioxarray as rxr
 import geopandas as gp
 import matplotlib.pyplot as plt
 from zmq import ctx_opt_names #for the Ploting purpose
 import time
+import pandas as pd
 
 st=time.time()
 
@@ -30,12 +31,8 @@ def data_correction(DATAFIELD):
     data = (data - add_offset) * scale_factor 
     datam = np.ma.masked_array(data, np.isnan(data))
     return datam
-
-# file = "/"
-i = 0
-
+    
 os.chdir('/Volumes/PtatoBasket/Datasets/Unclipped_MYD/PRE-MONSOON/2005-2006')
-
 for file in list(glob.glob('MYD08*.hdf')):
 
     reader = open(file)
@@ -46,6 +43,14 @@ for file in list(glob.glob('MYD08*.hdf')):
     latitude = lat[:]
     lon = hdf.select('XDim')
     longitude = lon[:]
+
+    #Getting the dates from filename
+    arr=str(file).split(".")
+    year=str(arr[1])[1:5]
+    days=str(arr[1])[5:]
+    dat=datetime(int(year), 1, 1) + timedelta(int(days) - 1)
+    dat=(dat-datetime(2005,1,1)).days
+
 
     cer = data_correction('Cloud_Effective_Radius_Liquid_Mean')
     cot=data_correction('Cloud_Optical_Thickness_Combined_Mean')
@@ -62,6 +67,7 @@ for file in list(glob.glob('MYD08*.hdf')):
                     },
             coords={'longitude': longitude,
                 'latitude': latitude,
+                'time':dat,
             })
 
     df.Cloud_Effective_Radius_Liquid_Mean.attrs['long_name'] = 'Cloud Effective Radius'
@@ -78,6 +84,12 @@ for file in list(glob.glob('MYD08*.hdf')):
     df.latitude.attrs['long_name'] = 'latitude'
     df.latitude.attrs['units'] = 'degrees_north'
     df.latitude.attrs['axis'] = 'Y'
+
+
+    df.time.attrs['standard_name'] = 'time'
+    df.time.attrs['long_name'] = 'time'
+    df.time.attrs['axis'] = 'T'
+    df.time.attrs["units"] = "days since 2005-01-01"
 
 
     #Clipping to shape File and Creating Mask File
@@ -101,7 +113,7 @@ for file in list(glob.glob('MYD08*.hdf')):
 
     cropped_ds = masked_shape.sel(latitude=slice(max_lat,min_lat), longitude=slice(min_lon,max_lon))
     fname=str(file)[:-3]
-    cropped_ds.to_netcdf('/Volumes/ACIML/Clipped-MOD/'+fname+'nc')
+    cropped_ds.to_netcdf('/Volumes/ACIML/Clipped-MYD/'+fname+'nc')
 
 # plt.figure(figsize=(12,8))
 # ax=plt.axes()
