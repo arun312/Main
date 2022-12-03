@@ -31,8 +31,20 @@ def data_correction(DATAFIELD):
     data = (data - add_offset) * scale_factor 
     datam = np.ma.masked_array(data, np.isnan(data))
     return datam
-    
-os.chdir('/Volumes/PtatoBasket/Datasets/Unclipped_MYD/PRE-MONSOON/2005-2006')
+
+a=[]
+
+os.chdir('/Volumes/PtatoBasket/Datasets/MODIS-WINTER')
+
+# reader = open('MYD08_D3.A2005060.061.2018023132110.pscs_000501875658.hdf')
+# hdf = SD('MYD08_D3.A2005060.061.2018023132110.pscs_000501875658.hdf', SDC.READ)
+
+# # Read geolocation dataset.
+# lat = hdf.select('YDim')
+# latitude = lat[:]
+# lon = hdf.select('XDim')
+# longitude = lon[:]
+
 for file in list(glob.glob('MYD08*.hdf')):
 
     reader = open(file)
@@ -56,6 +68,7 @@ for file in list(glob.glob('MYD08*.hdf')):
     cot=data_correction('Cloud_Optical_Thickness_Combined_Mean')
     ctt=data_correction('Cloud_Top_Temperature_Mean')
     ctp=data_correction('Cloud_Top_Pressure_Mean')
+    aod=data_correction('AOD_550_Dark_Target_Deep_Blue_Combined_Mean')
 
 
 
@@ -64,6 +77,7 @@ for file in list(glob.glob('MYD08*.hdf')):
                         'Cloud_Optical_Thickness_Combined_Mean':(('latitude', 'longitude' ), cot),
                         'Cloud_Top_Temperature_Mean':(('latitude', 'longitude' ), ctt),
                         'Cloud_Top_Pressure_Mean':(('latitude', 'longitude' ), ctp),
+                        'AOD_550_Dark_Target_Deep_Blue_Combined_Mean':(('latitude', 'longitude' ), aod),
                     },
             coords={'longitude': longitude,
                 'latitude': latitude,
@@ -103,17 +117,21 @@ for file in list(glob.glob('MYD08*.hdf')):
     # mask=countries_mask_poly.mask(df,lat_name='latitude',lon_name='longitude')
     # mask.to_netcdf('BOB_MASK.nc')
 
-    mask=xr.open_dataarray('/Volumes/ACIML/Main/BOB_MASK.nc')
-    masked_shape=df.where(mask==0)
-
+    mask=xr.open_dataarray('/Volumes/ACIML/Main/SHPs/BOB_MASK.nc')
+    # masked_shape=df.where(mask==0)
+    masked_shape=df
     min_lon = 78.00
     max_lon = 96.00
     min_lat = 8.00
     max_lat = 23.00
 
     cropped_ds = masked_shape.sel(latitude=slice(max_lat,min_lat), longitude=slice(min_lon,max_lon))
-    fname=str(file)[:-3]
-    cropped_ds.to_netcdf('/Volumes/ACIML/Clipped-MYD/'+fname+'nc')
+    a.append(cropped_ds)
+
+fin=xr.concat(a, dim="time")
+# fname=str(file)[:-3]
+fname=str('Unclipped_MODIS_WINTER')
+fin.to_netcdf('/Volumes/ACIML/Datasets/'+fname+'.nc')
 
 # plt.figure(figsize=(12,8))
 # ax=plt.axes()
