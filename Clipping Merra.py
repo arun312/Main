@@ -15,9 +15,9 @@ import shutil
 import regionmask
 
 st=time.time()
-os.chdir('/Volumes/PtatoBasket/Datasets/MERRA2/Winter')
+os.chdir('/Volumes/PtatoBasket/Datasets/N_MERRA2/MERRA2/PreMon')
 
-#Sorting to Winter and Premon
+# # Sorting to Winter and Premon
 # for file in list(glob.glob('MERRA2_*.nc4')):
 #     month=str(file)[-12:-10]
 #     if month=='01':
@@ -50,7 +50,7 @@ for file in list(glob.glob('MERRA2_*.nc4')):
     dat=datetime.strptime(dat,'%Y-%m-%d')
     xxx.append(dat)
 
-    AOD=ds.TOTSCATAU
+    AOD=ds.TOTEXTTAU
     angstr=ds.TOTANGSTR
 
     #To Daily Data
@@ -63,10 +63,41 @@ for file in list(glob.glob('MERRA2_*.nc4')):
     #Make AI
     AI=AOD*angstr
     lat,lon=AI.indexes.values()
-    datam = np.ma.masked_array(AI, np.isnan(AI))
-    df=xr.merge([xr.DataArray(AOD, name="AOD"),xr.DataArray(AI, name="AI")])
 
-    mask=xr.open_dataarray('/Volumes/ACIML/Main/SHPs/BOB_MASK-Merra1.nc')
+    SULFATE_AOD=ds.SUEXTTAU
+    SULFATE_AOD=SULFATE_AOD.mean(dim='time', skipna=True)
+    SULFATE_AOD=SULFATE_AOD[:,:].astype(np.double)
+
+    SEASALT_AOD=ds.SSEXTTAU
+    SEASALT_AOD=SEASALT_AOD.mean(dim='time', skipna=True)
+    SEASALT_AOD=SEASALT_AOD[:,:].astype(np.double)
+
+    OC_AOD=ds.OCEXTTAU
+    OC_AOD=OC_AOD.mean(dim='time', skipna=True)
+    OC_AOD=OC_AOD[:,:].astype(np.double)
+
+    BC_AOD=ds.BCEXTTAU
+    BC_AOD=BC_AOD.mean(dim='time', skipna=True)
+    BC_AOD=BC_AOD[:,:].astype(np.double)
+
+    DUST_AOD=ds.DUEXTTAU
+    DUST_AOD=DUST_AOD.mean(dim='time', skipna=True)
+    DUST_AOD=DUST_AOD[:,:].astype(np.double)
+
+    datam = np.ma.masked_array(AI, np.isnan(AI))
+    df=xr.merge([xr.DataArray(AOD, name="AOD"),xr.DataArray(SULFATE_AOD, name="SULFATE_AOD"),xr.DataArray(SEASALT_AOD, name="SEASALT_AOD"),xr.DataArray(OC_AOD, name="OC_AOD"),xr.DataArray(BC_AOD, name="BC_AOD"),xr.DataArray(DUST_AOD, name="DUST_AOD"),xr.DataArray(AI, name="AI")],)
+
+    #Clipping to shape File and Creating Mask File
+    # shapefile ="/Volumes/ACIML/Main/SHPs/BOB_OCEAN/BOB_OCEAN.shp"
+    # countries=gp.read_file(shapefile,engine='pyogrio')
+    # c_list=list(countries['featurecla'])
+    # c_list_unique=set(list(countries['featurecla']))
+    # indexes=[c_list.index(x) for x in c_list_unique]
+    # countries_mask_poly=regionmask.Regions(outlines=countries.geometry[indexes],name='featurecla',numbers=indexes,names=countries.featurecla[indexes])
+    # mask=countries_mask_poly.mask(df,lat_name='lat',lon_name='lon')
+    # mask.to_netcdf('/Volumes/ACIML/Main/SHPs/BOB_MASK-Merra2.nc')
+
+    mask=xr.open_dataarray('/Volumes/ACIML/Main/SHPs/BOB_MASK-Merra2.nc')
     masked_shape=df.where(mask==0)
 
     min_lon = 78.00
@@ -81,7 +112,7 @@ fin=xr.concat(a,"time")
 fin.coords['time']=xxx
 fin=fin.sortby('time')
 
-fname=str('MERRA-Winter')
+fname=str('N_MERRA-PreMon')
 fin.to_netcdf('/Volumes/ACIML/Main/'+fname+'.nc')
 
 print('Clipping completed in %s seconds'%(time.time()-st))
