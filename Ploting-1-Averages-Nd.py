@@ -5,6 +5,12 @@ import xarray as xr
 import numpy as np
 import geopandas as gp
 
+
+font = {'weight' : 'bold',
+        'size'   : 16}
+plt.rcParams["font.family"] = "Times New Roman"
+plt.rc('font', **font)
+
 # -ND-PREMON
 ax = plt.axes(projection=ccrs.PlateCarree())
 dataDIR="../Datasets/Nd_PreMon.nc"
@@ -21,16 +27,26 @@ Nd_mean=Nd.mean(dim='time', skipna=True)
 lat, lon = Nd_mean.indexes.values()
 
 plt.pcolor(lon, lat, Nd_mean,
-            transform=ccrs.PlateCarree(),cmap='jet',vmin=20,vmax=50)
+            transform=ccrs.PlateCarree(),cmap='jet',vmin=20,vmax=70)
 plt.colorbar()    
 
 plt.contourf(lon, lat, Nd_mean,60,
-            transform=ccrs.PlateCarree(),cmap='jet',vmin=20,vmax=50)
-plt.title("Nd_MEAN-PreMon(2005-2021)(cm^-3)")
+            transform=ccrs.PlateCarree(),cmap='jet',vmin=20,vmax=70)
+# plt.title("Nd_MEAN-PreMon(2005-2021)(cm^-3)")
 ax.coastlines()
 gridlines = ax.gridlines(draw_labels=True,linewidth=0)
 gridlines.top_labels = False
 gridlines.right_labels = False
+gridlines.bottom_labels=False
+
+major_tick = [80,84,88,92,96]
+minor_tick = [78,82,86,90,94]
+ax.set_xticks(minor_tick) # Grid
+ax.set_xticks(major_tick, minor=True)
+
+major_tick1 = ['78°E','82°E','86°E','90°E','94°E']
+ax.set_xticklabels(major_tick1) # Grid
+
 plt.savefig('Nd_MEAN-PreMon(2005-2021).png',dpi=300)
 # # ax.legend()
 # plt.show()
@@ -52,17 +68,29 @@ Nd_mean=Nd.mean(dim='time', skipna=True)
 lat, lon = Nd_mean.indexes.values()
 
 plt.pcolor(lon, lat, Nd_mean,
-            transform=ccrs.PlateCarree(),cmap='jet',vmin=20,vmax=50)
+            transform=ccrs.PlateCarree(),cmap='jet',vmin=20,vmax=70)
 plt.colorbar()    
 
 plt.contourf(lon, lat, Nd_mean,60,
-            transform=ccrs.PlateCarree(),cmap='jet',vmin=20,vmax=50)
+            transform=ccrs.PlateCarree(),cmap='jet',vmin=20,vmax=70)
 
-plt.title("Nd_MEAN-WINTER(2005-2021)(cm^-3)")
+# plt.title("Nd_MEAN-WINTER(2005-2021)(cm^-3)")
 ax.coastlines()
 gridlines = ax.gridlines(draw_labels=True,linewidth=0)
 gridlines.top_labels = False
 gridlines.right_labels = False
+gridlines.bottom_labels = False
+
+
+major_tick = [80,84,88,92,96]
+minor_tick = [78,82,86,90,94]
+ax.set_xticks(minor_tick) # Grid
+ax.set_xticks(major_tick, minor=True)
+
+major_tick1 = ['78°E','82°E','86°E','90°E','94°E']
+ax.set_xticklabels(major_tick1) # Grid
+
+
 plt.savefig('Nd_MEAN-WINTER(2005-2021).png',dpi=300)
 # ax.legend()
 # plt.show()
