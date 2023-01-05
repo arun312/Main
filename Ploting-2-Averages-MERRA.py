@@ -8,11 +8,11 @@ import geopandas as gp
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 font = {'weight' : 'bold',
-        'size'   : 16}
+        'size'   : 12}
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rc('font', **font)
 
-#DUST_AOD-Premon
+#BC_AOD-Premon
 
 w, h=plt.figaspect(2.2)
 fig,ax=plt.subplots(nrows=2,subplot_kw={'projection':ccrs.PlateCarree()})
@@ -21,19 +21,19 @@ fig.set_size_inches(w,h)
 
 dataDIR="../Datasets/N_MERRA-PreMon.nc"
 data = xr.open_dataset(dataDIR)
-DUST_AOD=data.DUST_AOD
-DUST_AOD=DUST_AOD[:,:,:].astype(np.double)
+BC_AOD=data.BC_AOD
+BC_AOD=BC_AOD[:,:,:].astype(np.double)
 
-DUST_AOD_mean=DUST_AOD.mean(dim='time', skipna=True)
-# DUST_AOD_mean.plot(ax=ax) 
-lat, lon = DUST_AOD_mean.indexes.values()
+BC_AOD_mean=BC_AOD.mean(dim='time', skipna=True)
+# BC_AOD_mean.plot(ax=ax) 
+lat, lon = BC_AOD_mean.indexes.values()
 
-ax[0].pcolor(lon, lat, DUST_AOD_mean,
-            transform=ccrs.PlateCarree(),cmap='jet',vmin=0,vmax=.15)
+ax[0].pcolor(lon, lat, BC_AOD_mean,
+            transform=ccrs.PlateCarree(),cmap='jet',vmin=0,vmax=.08)
 # plt.colorbar()    
 
-ax[0].contourf(lon, lat, DUST_AOD_mean,60,
-            transform=ccrs.PlateCarree(),cmap='jet',vmin=0,vmax=.15)
+ax[0].contourf(lon, lat, BC_AOD_mean,60,
+            transform=ccrs.PlateCarree(),cmap='jet',vmin=0,vmax=.08)
 # plt.title("Nd_MEAN-PreMon(2005-2021)(cm^-3)")
 ax[0].coastlines()
 
@@ -45,37 +45,37 @@ gridlines.bottom_labels=False
 ax[0].set_ylim(bottom=8.5,top=23)
 
 
-major_tick = [80,84,88,92,96]
-minor_tick = [78,82,86,90,94]
-ax[0].set_xticks(minor_tick) # Grid
-ax[0].set_xticks(major_tick, minor=True)
+# major_tick = [80,84,88,92,96]
+# minor_tick = [78,82,86,90,94]
+# ax[0].set_xticks(minor_tick) # Grid
+# ax[0].set_xticks(major_tick, minor=True)
 
-major_tick1 = ['78°E','82°E','86°E','90°E','94°E']
-ax[0].set_xticklabels(major_tick1) # Grid
+# major_tick1 = ['78°E','82°E','86°E','90°E','94°E']
+# ax[0].set_xticklabels(major_tick1) # Grid
 
-# plt.title("DUST_AOD_MEAN-PreMon(2005-2021)")
-# plt.savefig('MERRA_DUST_AOD_MEAN-PreMon(2005-2021).png',dpi=300)
+# plt.title("BC_AOD_MEAN-PreMon(2005-2021)")
+# plt.savefig('MERRA_BC_AOD_MEAN-PreMon(2005-2021).png',dpi=300)
 # plt.show()
 # plt.clf()
 
 
-#DUST_AOD-WINTER
+#BC_AOD-WINTER
 # ax[1] = plt.axes(projection=ccrs.PlateCarree())
 
 dataDIR="../Datasets/N_MERRA-Winter.nc"
 data = xr.open_dataset(dataDIR)
-DUST_AOD=data.DUST_AOD
-DUST_AOD=DUST_AOD[:,:,:].astype(np.double)
+BC_AOD=data.BC_AOD
+BC_AOD=BC_AOD[:,:,:].astype(np.double)
 
-DUST_AOD_mean=DUST_AOD.mean(dim='time', skipna=True)
-# DUST_AOD_mean.plot(ax=ax) 
-lat, lon = DUST_AOD_mean.indexes.values()
+BC_AOD_mean=BC_AOD.mean(dim='time', skipna=True)
+# BC_AOD_mean.plot(ax=ax) 
+lat, lon = BC_AOD_mean.indexes.values()
 
-im = ax[1].pcolor(lon, lat, DUST_AOD_mean,
-            transform=ccrs.PlateCarree(),cmap='jet',vmin=0,vmax=.15)
+im = ax[1].pcolor(lon, lat, BC_AOD_mean,
+            transform=ccrs.PlateCarree(),cmap='jet',vmin=0,vmax=.08)
 # ax[1].colorbar()    
-ax[1].contourf(lon, lat, DUST_AOD_mean,60,
-            transform=ccrs.PlateCarree(),cmap='jet',vmin=0,vmax=.15)
+ax[1].contourf(lon, lat, BC_AOD_mean,60,
+            transform=ccrs.PlateCarree(),cmap='jet',vmin=0,vmax=.08)
 # plt.title("Nd_MEAN-WINTER(2005-2021)(cm^-3)")
 ax[1].coastlines()
 
@@ -103,7 +103,7 @@ ax[1].set_xticklabels(major_tick1) # Grid
 # fig.add_axes(cax)
 fig.colorbar(im,ax=ax[:],shrink=.9,orientation='horizontal',pad=.07)
 # plt.colorbar(im,cax=cax,orientation='horizontal')
-# plt.title("DUST_AOD_MEAN-WINTER(2005-2021)")
+# plt.title("BC_AOD_MEAN-WINTER(2005-2021)")
 
 
-plt.savefig('MERRA-DUST_AOD_MEAN(2005-2021).png',dpi=300)
+plt.savefig('MERRA-BC_AOD_MEAN(2005-2021).png',dpi=300)

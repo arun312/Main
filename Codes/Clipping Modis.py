@@ -34,16 +34,7 @@ def data_correction(DATAFIELD):
 
 a=[]
 
-os.chdir('/Volumes/PtatoBasket/Datasets/MODIS-WINTER')
-
-# reader = open('MYD08_D3.A2005060.061.2018023132110.pscs_000501875658.hdf')
-# hdf = SD('MYD08_D3.A2005060.061.2018023132110.pscs_000501875658.hdf', SDC.READ)
-
-# # Read geolocation dataset.
-# lat = hdf.select('YDim')
-# latitude = lat[:]
-# lon = hdf.select('XDim')
-# longitude = lon[:]
+os.chdir('/Volumes/PtatoBasket/Datasets/MODIS-RAW/MODIS LWP PreMon')
 
 for file in list(glob.glob('MYD08*.hdf')):
 
@@ -63,31 +54,32 @@ for file in list(glob.glob('MYD08*.hdf')):
     dat=datetime(int(year), 1, 1) + timedelta(int(days) - 1)
     dat=(dat-datetime(2005,1,1)).days
 
-
-    cer = data_correction('Cloud_Effective_Radius_Liquid_Mean')
-    cot=data_correction('Cloud_Optical_Thickness_Combined_Mean')
-    ctt=data_correction('Cloud_Top_Temperature_Mean')
-    ctp=data_correction('Cloud_Top_Pressure_Mean')
-    aod=data_correction('AOD_550_Dark_Target_Deep_Blue_Combined_Mean')
-
+    # Reading Variables
+    # cer = data_correction('Cloud_Effective_Radius_Liquid_Mean')
+    # cot=data_correction('Cloud_Optical_Thickness_Combined_Mean')
+    # ctt=data_correction('Cloud_Top_Temperature_Mean')
+    # ctp=data_correction('Cloud_Top_Pressure_Mean')
+    # aod=data_correction('AOD_550_Dark_Target_Deep_Blue_Combined_Mean')
+    lwp=data_correction('Cloud_Water_Path_Liquid_Mean')
 
 
     df = xr.Dataset(
-            data_vars={'Cloud_Effective_Radius_Liquid_Mean':    (('latitude', 'longitude' ), cer),
-                        'Cloud_Optical_Thickness_Combined_Mean':(('latitude', 'longitude' ), cot),
-                        'Cloud_Top_Temperature_Mean':(('latitude', 'longitude' ), ctt),
-                        'Cloud_Top_Pressure_Mean':(('latitude', 'longitude' ), ctp),
-                        'AOD_550_Dark_Target_Deep_Blue_Combined_Mean':(('latitude', 'longitude' ), aod),
+            data_vars={'LWP':    (('latitude', 'longitude' ), lwp),
+                        # 'Cloud_Optical_Thickness_Combined_Mean':(('latitude', 'longitude' ), cot),
+                        # 'Cloud_Top_Temperature_Mean':(('latitude', 'longitude' ), ctt),
+                        # 'Cloud_Top_Pressure_Mean':(('latitude', 'longitude' ), ctp),
+                        # 'AOD_550_Dark_Target_Deep_Blue_Combined_Mean':(('latitude', 'longitude' ), aod),
                     },
             coords={'longitude': longitude,
                 'latitude': latitude,
                 'time':dat,
             })
 
-    df.Cloud_Effective_Radius_Liquid_Mean.attrs['long_name'] = 'Cloud Effective Radius'
-    df.Cloud_Optical_Thickness_Combined_Mean.attrs['long_name'] = 'Cloud Optical Radius'
-    df.Cloud_Top_Temperature_Mean.attrs['long_name'] = 'Cloud Top Temperautre'
-    df.Cloud_Top_Pressure_Mean.attrs['long_name'] = 'Cloud Top Pressure'
+    # df.Cloud_Effective_Radius_Liquid_Mean.attrs['long_name'] = 'Cloud Effective Radius'
+    # df.Cloud_Optical_Thickness_Combined_Mean.attrs['long_name'] = 'Cloud Optical Radius'
+    # df.Cloud_Top_Temperature_Mean.attrs['long_name'] = 'Cloud Top Temperautre'
+    # df.Cloud_Top_Pressure_Mean.attrs['long_name'] = 'Cloud Top Pressure'
+    df.LWP.attrs['long_name'] = 'Cloud_Water_Path_Liquid_Mean'
 
     df.longitude.attrs['standard_name'] = 'longitude'
     df.longitude.attrs['long_name'] = 'longitude'
@@ -118,8 +110,7 @@ for file in list(glob.glob('MYD08*.hdf')):
     # mask.to_netcdf('BOB_MASK.nc')
 
     mask=xr.open_dataarray('/Volumes/ACIML/Main/SHPs/BOB_MASK.nc')
-    # masked_shape=df.where(mask==0)
-    masked_shape=df
+    masked_shape=df.where(mask==0)
     min_lon = 78.00
     max_lon = 96.00
     min_lat = 8.00
@@ -130,8 +121,9 @@ for file in list(glob.glob('MYD08*.hdf')):
 
 fin=xr.concat(a, dim="time")
 # fname=str(file)[:-3]
-fname=str('Unclipped_MODIS_WINTER')
-fin.to_netcdf('/Volumes/ACIML/Datasets/'+fname+'.nc')
+fname=str('LWP_MODIS_PreMon')
+# fin.to_netcdf('/Volumes/ACIML/Datasets/'+fname+'.nc')
+fin.to_netcdf('../'+fname+'.nc')
 
 # plt.figure(figsize=(12,8))
 # ax=plt.axes()
