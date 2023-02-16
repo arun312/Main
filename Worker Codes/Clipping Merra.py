@@ -7,7 +7,7 @@ from datetime import datetime,date,timedelta
 import rioxarray as rxr
 import geopandas as gp
 import matplotlib.pyplot as plt
-from zmq import ctx_opt_names #for the Ploting purpose
+# from zmq import ctx_opt_names #for the Ploting purpose
 import time
 import pandas as pd
 import shutil
@@ -15,7 +15,7 @@ import shutil
 import regionmask
 
 st=time.time()
-os.chdir('/Volumes/PtatoBasket/Datasets/N_MERRA2/MERRA2/PreMon')
+os.chdir('/Volumes/PtatoBasket/Dataset_New/PBLH')
 
 # # Sorting to Winter and Premon
 # for file in list(glob.glob('MERRA2_*.nc4')):
@@ -40,7 +40,7 @@ os.chdir('/Volumes/PtatoBasket/Datasets/N_MERRA2/MERRA2/PreMon')
 #Real Clipping
 xxx=[]
 a=[]
-for file in list(glob.glob('MERRA2_*.nc4')):
+for file in list(glob.glob('PreMon/*.nc4')):
 
     ds=xr.open_dataset(file)
 
@@ -48,44 +48,53 @@ for file in list(glob.glob('MERRA2_*.nc4')):
     attrs = ds.attrs
     dat=attrs["RangeBeginningDate"]
     dat=datetime.strptime(dat,'%Y-%m-%d')
-    xxx.append(dat)
+    # January 1st, 1900
+    start_datetime = datetime(1900, 1, 1)
 
-    AOD=ds.TOTEXTTAU
-    angstr=ds.TOTANGSTR
+    # Calculate the time delta (difference) in hours
+    delta = (dat - start_datetime).total_seconds() / 3600
 
-    #To Daily Data
-    AOD=AOD.mean(dim='time', skipna=True)
-    angstr=angstr.mean(dim='time', skipna=True)
 
-    AOD=AOD[:,:].astype(np.double)
-    angstr=angstr[:,:].astype(np.double)
+    xxx.append(delta)
 
-    #Make AI
-    AI=AOD*angstr
-    lat,lon=AI.indexes.values()
 
-    SULFATE_AOD=ds.SUEXTTAU
-    SULFATE_AOD=SULFATE_AOD.mean(dim='time', skipna=True)
-    SULFATE_AOD=SULFATE_AOD[:,:].astype(np.double)
+    # #For AODAI
+    # AOD=ds.TOTEXTTAU
+    # angstr=ds.TOTANGSTR
 
-    SEASALT_AOD=ds.SSEXTTAU
-    SEASALT_AOD=SEASALT_AOD.mean(dim='time', skipna=True)
-    SEASALT_AOD=SEASALT_AOD[:,:].astype(np.double)
+    # #To Daily Data
+    # AOD=AOD.mean(dim='time', skipna=True)
+    # angstr=angstr.mean(dim='time', skipna=True)
 
-    OC_AOD=ds.OCEXTTAU
-    OC_AOD=OC_AOD.mean(dim='time', skipna=True)
-    OC_AOD=OC_AOD[:,:].astype(np.double)
+    # AOD=AOD[:,:].astype(np.double)
+    # angstr=angstr[:,:].astype(np.double)
 
-    BC_AOD=ds.BCEXTTAU
-    BC_AOD=BC_AOD.mean(dim='time', skipna=True)
-    BC_AOD=BC_AOD[:,:].astype(np.double)
+    # #Make AI
+    # AI=AOD*angstr
+    # lat,lon=AI.indexes.values()
 
-    DUST_AOD=ds.DUEXTTAU
-    DUST_AOD=DUST_AOD.mean(dim='time', skipna=True)
-    DUST_AOD=DUST_AOD[:,:].astype(np.double)
+    # SULFATE_AOD=ds.SUEXTTAU
+    # SULFATE_AOD=SULFATE_AOD.mean(dim='time', skipna=True)
+    # SULFATE_AOD=SULFATE_AOD[:,:].astype(np.double)
 
-    datam = np.ma.masked_array(AI, np.isnan(AI))
-    df=xr.merge([xr.DataArray(AOD, name="AOD"),xr.DataArray(SULFATE_AOD, name="SULFATE_AOD"),xr.DataArray(SEASALT_AOD, name="SEASALT_AOD"),xr.DataArray(OC_AOD, name="OC_AOD"),xr.DataArray(BC_AOD, name="BC_AOD"),xr.DataArray(DUST_AOD, name="DUST_AOD"),xr.DataArray(AI, name="AI")],)
+    # SEASALT_AOD=ds.SSEXTTAU
+    # SEASALT_AOD=SEASALT_AOD.mean(dim='time', skipna=True)
+    # SEASALT_AOD=SEASALT_AOD[:,:].astype(np.double)
+
+    # OC_AOD=ds.OCEXTTAU
+    # OC_AOD=OC_AOD.mean(dim='time', skipna=True)
+    # OC_AOD=OC_AOD[:,:].astype(np.double)
+
+    # BC_AOD=ds.BCEXTTAU
+    # BC_AOD=BC_AOD.mean(dim='time', skipna=True)
+    # BC_AOD=BC_AOD[:,:].astype(np.double)
+
+    # DUST_AOD=ds.DUEXTTAU
+    # DUST_AOD=DUST_AOD.mean(dim='time', skipna=True)
+    # DUST_AOD=DUST_AOD[:,:].astype(np.double)
+
+    # datam = np.ma.masked_array(AI, np.isnan(AI))
+    # df=xr.merge([xr.DataArray(AOD, name="AOD"),xr.DataArray(SULFATE_AOD, name="SULFATE_AOD"),xr.DataArray(SEASALT_AOD, name="SEASALT_AOD"),xr.DataArray(OC_AOD, name="OC_AOD"),xr.DataArray(BC_AOD, name="BC_AOD"),xr.DataArray(DUST_AOD, name="DUST_AOD"),xr.DataArray(AI, name="AI")],)
 
     #Clipping to shape File and Creating Mask File
     # shapefile ="/Volumes/ACIML/Main/SHPs/BOB_OCEAN/BOB_OCEAN.shp"
@@ -96,6 +105,13 @@ for file in list(glob.glob('MERRA2_*.nc4')):
     # countries_mask_poly=regionmask.Regions(outlines=countries.geometry[indexes],name='featurecla',numbers=indexes,names=countries.featurecla[indexes])
     # mask=countries_mask_poly.mask(df,lat_name='lat',lon_name='lon')
     # mask.to_netcdf('/Volumes/ACIML/Main/SHPs/BOB_MASK-Merra2.nc')
+
+    #For PBLH
+    PBLH=ds.TCZPBL
+    PBLH=PBLH.mean(dim='time', skipna=True)
+    PBLH=PBLH[:,:].astype(np.double)
+    lat,lon=PBLH.indexes.values()
+    df=PBLH
 
     mask=xr.open_dataarray('/Volumes/ACIML/Main/SHPs/BOB_MASK-Merra2.nc')
     masked_shape=df.where(mask==0)
@@ -108,11 +124,15 @@ for file in list(glob.glob('MERRA2_*.nc4')):
     cropped_ds = masked_shape.sel(lat=slice(min_lat,max_lat), lon=slice(min_lon,max_lon))
     a.append(cropped_ds)
 
-fin=xr.concat(a,"time")
+fin=xr.concat(a,dim="time")
 fin.coords['time']=xxx
 fin=fin.sortby('time')
 
-fname=str('N_MERRA-PreMon')
-fin.to_netcdf('/Volumes/ACIML/Main/'+fname+'.nc')
+fin.time.attrs['long_name'] = 'time'
+fin.time.attrs['units'] = "hours since 1900-01-01 00:00:00.0"
+fin.time.attrs['calendar'] ="gregorian" 
+
+fname=str('PreMonDaily_PBLH')
+fin.to_netcdf(fname+'.nc')
 
 print('Clipping completed in %s seconds'%(time.time()-st))

@@ -39,6 +39,7 @@ os.chdir('/Volumes/PtatoBasket/Dataset_New/PrecipitableWater-MODIS/')
 for file in list(glob.glob('A*.hdf')):
 
     reader = open(file)
+    ds=xr.open_dataset(file)
     hdf = SD(file, SDC.READ)
 
     # Read geolocation dataset.
