@@ -13,7 +13,7 @@ plt.rc('font', **font)
 
 # -ND-PREMON
 ax = plt.axes(projection=ccrs.PlateCarree())
-dataDIR="../Datasets/Nd_PreMon.nc"
+dataDIR="../Datasets/Nd_PreMonRecheck.nc"
 data = xr.open_dataset(dataDIR)
 data['Nd'] = data['__xarray_dataarray_variable__']
 data = data.drop(['__xarray_dataarray_variable__'])
@@ -47,14 +47,14 @@ ax.set_xticks(major_tick, minor=True)
 major_tick1 = ['78°E','82°E','86°E','90°E','94°E']
 ax.set_xticklabels(major_tick1) # Grid
 
-plt.savefig('Nd_MEAN-PreMon(2005-2021).png',dpi=300)
+plt.savefig('Nd_MEAN-PreMon(2005-2021)Recheck.png',dpi=300)
 # # ax.legend()
 # plt.show()
 plt.clf()
 
 # ND-WINTER
 ax = plt.axes(projection=ccrs.PlateCarree())
-dataDIR="../Datasets/Nd_Winter.nc"
+dataDIR="../Datasets/Nd_WinterRecheck.nc"
 data = xr.open_dataset(dataDIR)
 data['Nd'] = data['__xarray_dataarray_variable__']
 data = data.drop(['__xarray_dataarray_variable__'])
@@ -91,6 +91,6 @@ major_tick1 = ['78°E','82°E','86°E','90°E','94°E']
 ax.set_xticklabels(major_tick1) # Grid
 
 
-plt.savefig('Nd_MEAN-WINTER(2005-2021).png',dpi=300)
+plt.savefig('Nd_MEAN-WINTER(2005-2021)ReCheck.png',dpi=300)
 # ax.legend()
 # plt.show()
